@@ -1,0 +1,34 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#container  > ul {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: #e0dfda;
+}
+
+.message {
+    border: 1px solid transparent;
+    border-radius: 5px;
+    list-style: none;
+    margin-bottom: 1rem;
+    padding: .5rem 1rem;
+    display: flex;
+}
+
+.message-out {
+    background: #DCF8C6;
+    align-self: flex-end;
+}
+
+.message-in {
+    background: #FFF;
+    align-self: flex-start;
+}
+
+.hour-message {
+    font-size: 0.70em;
+}
