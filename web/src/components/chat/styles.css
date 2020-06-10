@@ -3,11 +3,24 @@
     padding: 0;
 }
 
-#container  > ul {
+html, body, #root {
+    height: 100%;
+}
+
+#chat {
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    background: #E5DDD5;
+}
+
+.content {
     display: flex;
     flex-direction: column;
     padding: 20px;
-    background: #e0dfda;
+    overflow: auto;
 }
 
 .message {
@@ -17,6 +30,11 @@
     margin-bottom: 1rem;
     padding: .5rem 1rem;
     display: flex;
+    text-align: right;
+}
+
+.message:hover {
+    box-shadow: 0 0 2px #000;
 }
 
 .message-out {
@@ -31,4 +49,29 @@
 
 .hour-message {
     font-size: 0.70em;
+}
+
+form#form-message {
+    display: flex;
+    padding: 15px;
+    background: #F0F0F0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border: solid 2px solid blue;
+}
+
+form#form-message > input {
+    border: 1px solid transparent;
+    font-size: 16px;
+    border-radius: 5px;
+    list-style: none;
+    padding: .5rem 1rem;
+    width: 100%;
+    outline: none;
+}
+
+#button-message-submit {
+    margin-left: 1em;
+    width: 2em;
 }
