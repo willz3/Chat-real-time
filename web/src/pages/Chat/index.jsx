@@ -4,12 +4,14 @@ import uuid from 'uuid/dist/v4';
 import { MdSend } from 'react-icons/md';
 import './styles.css'
 
+import DateUtil from '../../utils/DateUtil';
+
 const socket = io('http://localhost:3333');
 const myId = uuid();
 
 socket.on('connect', () => {
-    console.log('[IO] Connect -> New connection')
-});
+    console.log('Novo usuário conectado');
+})
 
 const Chat = () => {
 
@@ -17,13 +19,12 @@ const Chat = () => {
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
-        console.log('entrou!')
-        const handleNewMessage = newMessage => {
-            setMessages([...messages, newMessage]); 
-        }
-        socket.on('chat.message', handleNewMessage);
-
-        return () => socket.off('chat.message', handleNewMessage)
+        console.log('entrei no useEffect');
+        socket.on('receivedMessage', function (newMessage) {
+            console.log('entrei no receivedMessage');
+            console.log(newMessage);
+            setMessages([...messages, newMessage]);
+        });
     }, [messages])
 
     function handleInputChange(event) {
@@ -32,12 +33,17 @@ const Chat = () => {
 
     function handleFormSubmit(event) {
         event.preventDefault();
-
         if(message.trim()){
-            socket.emit('chat.message', {
+            let dateNow = new Date();
+
+            let messageObject = {
                 id: myId,
-                message
-            });
+                message,
+                date: DateUtil.newDateMessage(dateNow),
+                hour: DateUtil.newHourMessage(dateNow)
+            }
+
+            socket.emit('sendMessage', messageObject);
             setMessage('');
         }
     }
@@ -50,7 +56,7 @@ const Chat = () => {
                         <p>
                             <span className="text-message">
                                 {men.message}</span> <br />
-                            <span className="hour-message">21:44</span>
+                            <span className="hour-message">{men.hour}</span>
                         </p>
                     </li>
                 ))}
@@ -60,7 +66,7 @@ const Chat = () => {
                     onChange={handleInputChange}
                     placeholder="Type a message"
                     value={message} />
-                <MdSend size={22} id="button-message-submit" />
+                <MdSend size={22} id="button-message-submit" onClick={handleFormSubmit}/>
             </form>
         </div>
     )
