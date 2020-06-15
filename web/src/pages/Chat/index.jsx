@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import queryString from 'query-string'
 import io from 'socket.io-client';
 import uuid from 'uuid/dist/v4';
 import { MdSend } from 'react-icons/md';
@@ -6,22 +7,35 @@ import './styles.css'
 
 import DateUtil from '../../utils/DateUtil';
 
-const socket = io('http://localhost:3333');
+let socket;
 const myId = uuid();
 
-socket.on('connect', () => {
-    console.log('Novo usuário conectado');
-})
-
-const Chat = () => {
-
+const Chat = ({ location }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
+    const [nickname, setNickname] = useState('');
+    const room = 'uniqueRoom';
+
+    const ENDPOINT = 'http://localhost:3333';
 
     useEffect(() => {
-        console.log('entrei no useEffect');
-        socket.on('receivedMessage', function (newMessage) {
-            console.log('entrei no receivedMessage');
+        const { nickname } = queryString.parse(location.search);
+        socket = io(ENDPOINT);
+        setNickname(nickname);
+        
+        socket.emit('join', { nickname, room }, () => {
+
+        });
+
+        return () => {
+            socket.emit('disconnect');
+
+            socket.off();
+        }
+    }, [ENDPOINT, location.search]);
+
+    useEffect(() => {
+        socket.on('message', (newMessage) => {
             console.log(newMessage);
             setMessages([...messages, newMessage]);
         });
@@ -33,17 +47,17 @@ const Chat = () => {
 
     function handleFormSubmit(event) {
         event.preventDefault();
-        if(message.trim()){
+        if( message.trim()){
             let dateNow = new Date();
 
-            let messageObject = {
-                id: myId,
+            let data = {
+                user: nickname,
                 message,
                 date: DateUtil.newDateMessage(dateNow),
                 hour: DateUtil.newHourMessage(dateNow)
             }
 
-            socket.emit('sendMessage', messageObject);
+            socket.emit('sendMessage', data);
             setMessage('');
         }
     }
@@ -52,12 +66,10 @@ const Chat = () => {
         <div id="chat">
             <ul className="content">
                 {messages.map((men, index) => (
-                    <li className={`message message-${men.id === myId ? 'out' : 'in'}`} key={index}>
-                        <p>
-                            <span className="text-message">
-                                {men.message}</span> <br />
-                            <span className="hour-message">{men.hour}</span>
-                        </p>
+                    <li className={`message message-${men.user === nickname ? 'out' : 'in'}`} key={index}>
+                        <p>{men.user}</p>
+                        <p className="text-message">{men.message}</p>
+                        <p className="hour-message">{men.hour}</p>
                     </li>
                 ))}
             </ul>

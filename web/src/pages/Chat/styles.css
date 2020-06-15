@@ -19,13 +19,26 @@ html, body, #root {
 }
 
 .message {
+    display: flex;
+    flex-direction: column;
     border: 1px solid transparent;
     border-radius: 5px;
     list-style: none;
     margin-bottom: 1rem;
     padding: .5rem 1rem;
     display: flex;
-    text-align: right;
+    text-align: justify;
+    max-width: 40%;
+}
+
+.text-message {
+    word-wrap: break-word;
+}
+
+.message p:first-of-type {
+    text-align: left;
+    font-weight: bold;
+    font-size: 0.9em;
 }
 
 .message:hover {
@@ -43,6 +56,7 @@ html, body, #root {
 }
 
 .hour-message {
+    text-align: right;
     font-size: 0.70em;
 }
 

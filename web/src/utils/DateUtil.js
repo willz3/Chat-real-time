@@ -11,8 +11,10 @@ class DateUtil {
     
     newHourMessage(dateNow) {
         let hour = dateNow.getHours().toString();
+        hour = (hour.length === 1) ? '0' + hour : hour;
         let minute = dateNow.getMinutes().toString();
-        return hour+':'+minute;
+        minute = (minute.length === 1) ? '0' + minute : minute;
+        return hour + ':' + minute;
     }
 }
 
