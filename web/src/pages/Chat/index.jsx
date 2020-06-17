@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import queryString from 'query-string'
 import io from 'socket.io-client';
 import uuid from 'uuid/dist/v4';
@@ -11,12 +11,19 @@ let socket;
 const myId = uuid();
 
 const Chat = ({ location }) => {
+    const scrollBar = useRef(null);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const [nickname, setNickname] = useState('');
     const room = 'uniqueRoom';
 
     const ENDPOINT = 'http://localhost:3333';
+
+    useEffect(() => {
+        console.log(scrollBar.current);
+        console.log('PASSEEEEEI');
+
+    }, [scrollBar]);
 
     useEffect(() => {
         const { nickname } = queryString.parse(location.search);
@@ -36,10 +43,18 @@ const Chat = ({ location }) => {
 
     useEffect(() => {
         socket.on('message', (newMessage) => {
-            console.log(newMessage);
-            setMessages([...messages, newMessage]);
+            setMessages((previousState) => {
+                const oldMessages = [...previousState];
+                oldMessages.push(newMessage);
+                return oldMessages;
+            });
         });
-    }, [messages])
+    }, []);
+
+    useEffect(() => {
+        const scrollHeight = scrollBar.current.scrollHeight - scrollBar.current.clientHeight;
+        scrollBar.current.scrollTop = scrollHeight > 0 ? scrollHeight : 0;
+    }, [messages]);
 
     function handleInputChange(event) {
         setMessage(event.target.value);
@@ -47,7 +62,7 @@ const Chat = ({ location }) => {
 
     function handleFormSubmit(event) {
         event.preventDefault();
-        if( message.trim()){
+        if(message.trim()){
             let dateNow = new Date();
 
             let data = {
@@ -56,7 +71,7 @@ const Chat = ({ location }) => {
                 date: DateUtil.newDateMessage(dateNow),
                 hour: DateUtil.newHourMessage(dateNow)
             }
-
+            console.log(data);
             socket.emit('sendMessage', data);
             setMessage('');
         }
@@ -64,7 +79,7 @@ const Chat = ({ location }) => {
 
     return (
         <div id="chat">
-            <ul className="content">
+            <ul className="content" ref={scrollBar} onScroll={}>
                 {messages.map((men, index) => (
                     <li className={`message message-${men.user === nickname ? 'out' : 'in'}`} key={index}>
                         <p>{men.user}</p>
@@ -78,7 +93,9 @@ const Chat = ({ location }) => {
                     onChange={handleInputChange}
                     placeholder="Type a message"
                     value={message} />
-                <MdSend size={22} id="button-message-submit" onClick={handleFormSubmit}/>
+                    <button type="submit">
+                        <MdSend size={22} id="button-message-submit" />
+                    </button>
             </form>
         </div>
     )
